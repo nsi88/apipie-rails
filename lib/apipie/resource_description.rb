@@ -12,13 +12,14 @@ module Apipie
   class ResourceDescription
 
     attr_reader :controller, :_short_description, :_full_description, :_methods, :_id,
-      :_path, :_name, :_params_args, :_errors_args, :_formats, :_parent, :_metadata
+      :_path, :_name, :_params_args, :_fields_args, :_errors_args, :_formats, :_parent, :_metadata
 
     def initialize(controller, resource_name, dsl_data = nil, version = nil, &block)
 
       @_methods = ActiveSupport::OrderedHash.new
       @_params_args = []
       @_errors_args = []
+      @_fields_args = []
 
       @controller = controller
       @_id = resource_name
@@ -37,6 +38,7 @@ module Apipie
       @_formats = dsl_data[:formats]
       @_errors_args = dsl_data[:errors]
       @_params_args = dsl_data[:params]
+      @_fields_args = dsl_data[:fields]
       @_metadata = dsl_data[:meta]
       @_api_base_url = dsl_data[:api_base_url]
 

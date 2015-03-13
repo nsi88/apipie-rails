@@ -65,6 +65,12 @@
           <h4><%= t('apipie.params') %></h4>
           <%= render(:partial => "params_plain", :locals => {:params => method[:params]}) %>
         <% end %>
+
+        <% unless method[:fields].blank? %>
+          <h4><%= t('apipie.fields') %></h4>
+          <%= render(:partial => "fields_plain", :locals => {:fields => method[:fields]}) %>
+        <% end %>
+
       </div>
     <% end %>
   </div>

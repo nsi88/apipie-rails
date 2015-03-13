@@ -4,6 +4,7 @@ module Apipie
 
     around_filter :set_script_name
     before_filter :authenticate
+    #before_filter ->{ I18n.locale = :en }
 
     def authenticate
       if Apipie.configuration.authenticate

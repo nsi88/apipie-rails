@@ -232,7 +232,7 @@ module Apipie
       def old_header
         return @old_header if defined? @old_header
         @old_header = lines_above_method[/^\s*?#{Regexp.escape(Apipie.configuration.generated_doc_disclaimer)}.*/m]
-        @old_header ||= lines_above_method[/^\s*?\b(api|params|error|example)\b.*/m]
+        @old_header ||= lines_above_method[/^\s*?\b(api|params|fields|error|example)\b.*/m]
         @old_header ||= ""
         @old_header.sub!(/\A\s*\n/,"")
         @old_header = align_indented(@old_header)
@@ -277,6 +277,7 @@ module Apipie
         code = "#{Apipie.configuration.generated_doc_disclaimer}\n"
         code << generate_apis_code(desc[:api])
         code << generate_params_code(desc[:params])
+        code << generate_fields_code(desc[:fields])
         code << generate_errors_code(desc[:errors])
         return code
       end
@@ -321,6 +322,34 @@ module Apipie
           if desc[:nested]
             code << " do\n"
             code << generate_params_code(desc[:nested], indent + "  ")
+            code << "#{indent}end"
+          else
+          end
+          code << "\n"
+        end
+        code
+      end
+
+      def generate_fields_code(fields, indent = "")
+        code = ""
+        fields.sort_by {|n,_| n }.each do |(name, desc)|
+          desc[:type] = (desc[:type] && desc[:type].first) || Object
+          code << "#{indent}field"
+          if name =~ /\W/
+            code << " :'#{name}'"
+          else
+            code << " :#{name}"
+          end
+          code << ", #{desc[:type].inspect}"
+          if desc[:allow_nil]
+            code << ", allow_nil: true"
+          end
+          if desc[:required]
+            code << ", required: true"
+          end
+          if desc[:nested]
+            code << " do\n"
+            code << generate_fields_code(desc[:nested], indent + "  ")
             code << "#{indent}end"
           else
           end

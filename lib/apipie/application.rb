@@ -138,6 +138,22 @@ module Apipie
       @controller_versions[controller] = versions
     end
 
+    #add field group 
+    def add_field_group(controller, name, &block)
+      key = "#{controller.name}##{name}"
+      @field_groups[key] = block
+    end
+
+    def get_field_group(controller, name)
+      key = "#{controller.name}##{name}"
+      if @field_groups.has_key?(key)
+        return @field_groups[key]
+      else
+        raise "field group #{key} not defined"
+      end
+    end
+
+
     def add_param_group(controller, name, &block)
       key = "#{controller.name}##{name}"
       @param_groups[key] = block
@@ -243,6 +259,7 @@ module Apipie
       @resource_descriptions = HashWithIndifferentAccess.new { |h, version| h[version] = {} }
       @controller_to_resource_id = {}
       @param_groups = {}
+      @field_groups = {}
 
       # what versions does the controller belong in (specified by resource_description)?
       @controller_versions = Hash.new { |h, controller| h[controller] = [] }

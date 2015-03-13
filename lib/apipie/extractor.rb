@@ -34,11 +34,12 @@ module Apipie
       end
 
       def finish
-        record_params, record_examples = false, false
+        record_fields, record_params, record_examples = false, false, false
         case Apipie.configuration.record
         when "params"   then record_params = true
+        when "fields"   then record_fields = true
         when "examples" then record_examples = true
-        when "all"      then record_params = true, record_examples = true
+        when "all"      then record_params = true, record_fields=true, record_examples = true
         end
 
         if record_examples
@@ -47,6 +48,9 @@ module Apipie
         end
         if record_params
           puts "Updating auto-generated documentation"
+          write_docs
+        end
+        if record_fields #12.03.15
           write_docs
         end
       end

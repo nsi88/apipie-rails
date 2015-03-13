@@ -32,7 +32,8 @@ module Apipie
          :see               => [],
          :formats           => nil,
          :api_versions      => [],
-         :meta              => nil
+         :meta              => nil,
+         :fields            => []
        }
       end
     end
@@ -72,6 +73,10 @@ module Apipie
 
       def def_param_group(name, &block)
         Apipie.add_param_group(self, name, &block)
+      end
+
+      def def_field_group(name, &block)
+        Apipie.add_field_group(self, name, &block)
       end
 
       #
@@ -270,6 +275,48 @@ module Apipie
 
     end
 
+
+    #  this describes the fields
+    # add module 10.03.15
+    module Field       
+
+      def field(field_name, validator, desc_or_options = nil, options = {}, &block)
+        return unless Apipie.active_dsl?
+        _apipie_dsl_data[:fields] << [field_name, 
+                                      validator, 
+                                      desc_or_options, 
+                                      options.merge(:field_group => @_current_field_group), 
+                                      block]
+      end
+
+      def field_group(name, scope_or_options = nil, options={})
+          if scope_or_options.is_a? Hash 
+            options.merge!(scope_or_options)
+            scope = options[:scope]
+          else
+            scope = scope_or_options
+          end
+          scope ||= _default_field_group_scope
+
+          @_current_field_group = {
+            :scope => scope,
+            :name => name,
+            :options => options,
+            :from_concern => scope.apipie_concern?
+          }
+          self.instance_exec(&Apipie.get_field_group(scope, name))
+      ensure
+        @_current_field_group
+      end
+
+      def _default_field_group_scope
+        self
+      end
+
+    end # Module Fields
+
+
+
     # this describes the params, it's in separate module because it's
     # used in Validators as well
     module Param
@@ -320,13 +367,14 @@ module Apipie
       def _default_param_group_scope
         self
       end
-    end
+     end
 
     module Controller
       include Apipie::DSL::Base
       include Apipie::DSL::Common
       include Apipie::DSL::Action
       include Apipie::DSL::Param
+      include Apipie::DSL::Field
 
       # defines the substitutions to be made in the API paths deifned
       # in concerns included. For example:
@@ -394,6 +442,7 @@ module Apipie
       include Apipie::DSL::Common
       include Apipie::DSL::Action
       include Apipie::DSL::Param
+      include Apipie::DSL::Field
 
       # the concern was included into a controller
       def included(controller)
@@ -431,6 +480,7 @@ module Apipie
       include Apipie::DSL::Common
       include Apipie::DSL::Resource
       include Apipie::DSL::Param
+      include Apipie::DSL::Field
 
       def initialize(controller)
         @controller = controller

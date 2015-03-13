@@ -47,7 +47,13 @@ module Apipie
       @params_ordered = dsl_data[:params].map do |args|
         Apipie::ParamDescription.from_dsl_data(self, args)
       end
-      @params_ordered = ParamDescription.unify(@params_ordered)
+      @params_ordered = ParamDescription.unify(@params_ordered)      
+    
+      @fields_ordered = dsl_data[:fields].map do |args|
+        Apipie::FieldDescription.from_dsl_data(self, args)
+      end
+      @fields_ordered = FieldDescription.unify(@fields_ordered)
+
     end
 
     def id
@@ -72,6 +78,26 @@ module Apipie
 
       merge_params(all_params, @params_ordered)
       all_params.find_all(&:validator)
+    end    
+
+    def fields
+      fields_ordered.reduce(ActiveSupport::OrderedHash.new) { |h,p| h[p.name] = p; h }
+    end
+
+    def fields_ordered
+      all_fields = []
+      parent = Apipie.get_resource_description(@resource.controller.superclass)
+
+      # get fields from parent resource description
+      [parent, @resource].compact.each do |resource|
+        resource_fields = resource._fields_args.map do |args|
+          Apipie::FieldDescription.from_dsl_data(self, args)
+        end
+        merge_params(all_fields, resource_fields)
+      end
+
+      merge_params(all_fields, @fields_ordered)
+      all_fields.find_all(&:validator)
     end
 
     def errors
@@ -140,6 +166,7 @@ module Apipie
         :full_description => Apipie.app.translate(@full_description, lang),
         :errors => errors.map(&:to_json),
         :params => params_ordered.map{ |param| param.to_json(lang) }.flatten,
+        :fields => fields_ordered.map{ |field| field.to_json(lang) }.flatten,
         :examples => @examples,
         :metadata => @metadata,
         :see => see.map(&:to_json)
@@ -175,6 +202,12 @@ module Apipie
       params.delete_if { |p| new_param_names.include?(p.name) }
       params.concat(new_params)
     end
+
+    # def merge_fields(fields, new_fields)
+    #   new_field_names = Set.new(new_fields.map(&:name))
+    #   fields.delete_if { |p| new_field_names.include?(p.name) }
+    #   fields.concat(new_fields)
+    # end
 
     def load_recorded_examples
       (Apipie.recorded_examples[id] || []).

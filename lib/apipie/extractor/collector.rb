@@ -7,7 +7,7 @@ module Apipie
         @api_controllers_paths = Apipie.api_controllers_paths
         @ignored = Apipie.configuration.ignored_by_recorder
         @descriptions = Hash.new do |h, k|
-          h[k] = {:params => {}, :errors => Set.new}
+          h[k] = {:fields => {}, :params => {}, :errors => Set.new}
         end
         @records = Hash.new { |h,k| h[k] = [] }
       end
@@ -43,12 +43,46 @@ module Apipie
         description[:action] ||= record[:action]
 
         refine_errors_description(description, record)
-        refine_params_description(description[:params], record[:params])
+        refine_params_description(description[:params], record[:params])        
+        refine_params_description(description[:fields], record[:fields])
+
       end
 
       def refine_errors_description(description, record)
         if record[:code].to_i >= 300 && !description[:errors].any? { |e| e[:code].to_i == record[:code].to_i }
           description[:errors] << {:code => record[:code]}
+        end
+      end
+
+      def refine_fields_description(fields_desc, recorded_fields)
+        recorded_fields.each do |key, value|
+          fields_desc[key] ||= {}
+          field_desc = fields_desc[key]
+
+          if value.nil?
+            field_desc[:allow_nil] = true
+          else
+            # we specify what type it might be. At the end the first type
+            # that left is taken as the more general one
+            unless field_desc[:type]
+              field_desc[:type] = [:bool, :number]
+              field_desc[:type] << Hash if value.is_a? Hash
+              field_desc[:type] << :undef
+            end
+
+            if field_desc[:type].first == :bool && (! [true, false].include?(value))
+              field_desc[:type].shift
+            end
+
+            if field_desc[:type].first == :number && (key.to_s !~ /id$/ || !Apipie::Validator::NumberValidator.validate(value))
+              field_desc[:type].shift
+            end
+          end
+
+          if value.is_a? Hash
+            field_desc[:nested] ||= {}
+            refine_fields_description(field_desc[:nested], value)
+          end
         end
       end
 
@@ -96,6 +130,11 @@ module Apipie
         desc[:api] = Apipie::Extractor.apis_from_routes[[desc[:controller].name, desc[:action]]]
         if desc[:api]
           desc[:params].each do |name, param|
+            if desc[:api].all? { |a| a[:path].include?(":#{name}") }
+              param[:required] = true
+            end
+          end
+          desc[:fields].each do |name, field|
             if desc[:api].all? { |a| a[:path].include?(":#{name}") }
               param[:required] = true
             end

@@ -44,3 +44,18 @@
     </tbody>
   </table>
 <% end %>
+
+<% unless method[:fields].blank? %>
+  <%= heading(t('apipie.fields'), h_level) %>
+  <table class='table'>
+    <thead>
+      <tr>
+        <th><%= t('apipie.field_name') %></th>
+        <th><%= t('apipie.description') %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render(:partial => "fields", :locals => {:fields => method[:fields]}) %>
+    </tbody>
+  </table>
+<% end %>

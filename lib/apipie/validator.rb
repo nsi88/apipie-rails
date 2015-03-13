@@ -7,10 +7,11 @@ module Apipie
     # and implement class method build and instance method validate
     class BaseValidator
 
-      attr_accessor :param_description
+      attr_accessor :param_description, :field_description
 
       def initialize(param_description)
         @param_description = param_description
+        @field_description = field_description
       end
 
       def self.inherited(subclass)
@@ -71,6 +72,10 @@ module Apipie
       end
 
       def params_ordered
+        nil
+      end     
+       
+      def fields_ordered
         nil
       end
 
@@ -273,6 +278,7 @@ module Apipie
     class HashValidator < BaseValidator
       include Apipie::DSL::Base
       include Apipie::DSL::Param
+      include Apipie::DSL::Field
 
       def self.build(param_description, argument, options, block)
         self.new(param_description, block, options[:param_group]) if block.is_a?(Proc) && block.arity <= 0 && argument == Hash
@@ -297,6 +303,15 @@ module Apipie
           options = args.find { |arg| arg.is_a? Hash }
           options[:parent] = self.param_description
           Apipie::ParamDescription.from_dsl_data(param_description.method_description, args)
+        end
+      end
+
+      # add for FieldDescription
+      def fields_ordered
+        @fields_ordered ||= _apipie_dsl_data[:fields].map do |args|
+          options = args.find { |arg| arg.is_a? Hash }
+          options[:parent] = self.param_description
+          Apipie::FieldDescription.from_dsl_data(param_description.method_description, args)
         end
       end
 
@@ -339,6 +354,10 @@ module Apipie
         @param_group && @param_group[:scope]
       end
 
+      def _default_field_group_scope
+        @field_group && @field_group[:scope]
+      end
+
       def merge_with(other_validator)
         if other_validator.is_a? HashValidator
           @params_ordered = ParamDescription.unify(self.params_ordered + other_validator.params_ordered)
@@ -347,10 +366,25 @@ module Apipie
           super
         end
       end
+      
+      def merge_with(other_validator)
+        if other_validator.is_a? HashValidator
+          @fields_ordered = FieldDescription.unify(self.fields_ordered + other_validator.fields_ordered)
+          prepare_hash_fields
+        else
+          super
+        end
+      end
 
       def prepare_hash_params
         @hash_params = params_ordered.reduce({}) do |h, param|
           h.update(param.name.to_sym => param)
+        end
+      end      
+
+      def prepare_hash_fields
+        @hash_fields = fields_ordered.reduce({}) do |h, field|
+          h.update(field.name.to_sym => field)
         end
       end
     end

@@ -1,0 +1,20 @@
+<ul>
+  <% fields.each do |field| %>
+    <% if !field[:show] %>
+      <%= render(:partial => "fields_plain", :locals => {:fields => field[:fields]}) unless field[:fields].blank? %>
+      <% next %>
+    <% end %>
+    <li>
+      <strong><%= field[:name] %> </strong>:
+      <small>
+        <%= field[:required] ? t('apipie.required') : t('apipie.optional') %>
+        <%= field[:allow_nil] ? ', '+t('apipie.nil_allowed') : '' %>
+        <% if field[:validator] %>
+          [ <%= Apipie.markup_to_html(field[:validator]).html_safe %> ]
+        <% end %>
+      </small>
+      <%= field[:description].html_safe %>
+    </li>
+    <%= render(:partial => "fields_plain", :locals => {:fields => field[:fields]}) unless field[:fields].blank? %>
+  <% end %>
+</ul>
