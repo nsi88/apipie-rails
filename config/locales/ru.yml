@@ -16,8 +16,10 @@ ru:
         optional: необязательно
         nil_allowed: nil разрешен
         param_name: Имя параметра
-        params: Параметры
-        examples: Примеры
+        params: Параметры запросы
+        field_name: Имя поля
+        fields: Поля ответа
+        examples: Пример
         metadata: Метаданные
         errors: Ошибки
         supported_formats: Поддерживаемые форматы
