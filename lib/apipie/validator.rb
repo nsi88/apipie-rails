@@ -429,6 +429,27 @@ module Apipie
       end
     end
 
+    class FloatValidator < BaseValidator
+
+      def validate(value)
+        self.class.validate(value)
+      end
+
+      def self.build(param_description, argument, options, block)
+        if argument == :float
+          self.new(param_description)
+        end
+      end
+
+      def description
+        "#{I18n.t('apipie.must_be')} float."
+      end
+
+      def self.validate(value)
+        value.to_i.to_s == i || i.to_f.to_s == i
+      end
+    end
+
     class BooleanValidator < BaseValidator
 
       def validate(value)
