@@ -9,7 +9,6 @@
     <td>
       <strong><%= field[:full_name] %> </strong><br>
       <small>
-        <%= field[:required] ? t('apipie.required') : t('apipie.optional') %>
         <%= field[:allow_nil] ? ', '+t('apipie.nil_allowed') : '' %>
       </small>
     </td>
@@ -17,7 +16,7 @@
       <%= field[:description].html_safe %>
       <% unless field[:validator].blank? %>
         <br>
-        Value: <%= Apipie.markup_to_html(field[:validator]).html_safe %>
+        <%= t('apipie.value') %>: <%= Apipie.markup_to_html(field[:validator]).html_safe %>
       <% end %>
 
       <% unless field[:metadata].blank? %>

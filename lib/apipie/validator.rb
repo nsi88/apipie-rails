@@ -101,7 +101,7 @@ module Apipie
       end
 
       def description
-        "Must be #{@type}"
+        "#{I18n.t('apipie.must_be')} #{@type}"
       end
 
       def expected_type
@@ -134,7 +134,7 @@ module Apipie
       end
 
       def description
-        "Must match regular expression /#{@regexp.source}/."
+        "#{I18n.t('apipie.must_match_regexp')} /#{@regexp.source}/."
       end
     end
 
@@ -154,7 +154,7 @@ module Apipie
       end
 
       def description
-        "Must be one of: #{@array.join(', ')}."
+        "#{I18n.t('apipie.must_be_one_of')}: #{@array.join(', ')}."
       end
     end
 
@@ -177,7 +177,7 @@ module Apipie
       end
 
       def description
-        "Must be an array of #{items}"
+        "#{I18n.t('apipie.must_be_an_array_of')} #{items}"
       end
 
       def expected_type
@@ -222,7 +222,7 @@ module Apipie
 
       def items
         unless enum
-          @items_type || "any type"
+          @items_type || I18n.t('apipie.any_type')
         else
           enum.inspect
         end
@@ -247,7 +247,7 @@ module Apipie
       end
 
       def description
-        "Must be one of: #{@array.join(', ')}."
+        "#{I18n.t('apipie.must_be_one_of')}: #{@array.join(', ')}."
       end
     end
 
@@ -341,7 +341,7 @@ module Apipie
       end
 
       def description
-        "Must be a Hash"
+        "#{I18n.t('apipie.must_be')} Hash"
       end
 
       def expected_type
@@ -421,7 +421,7 @@ module Apipie
       end
 
       def description
-        "Must be a number."
+        "#{I18n.t('apipie.must_be')} number."
       end
 
       def self.validate(value)
@@ -446,7 +446,7 @@ module Apipie
       end
 
       def description
-        "Must be 'true' or 'false'"
+        "#{I18n.t('apipie.must_be')} 'true' #{I18n.t('apipie.or')} 'false'"
       end
     end
 
@@ -487,7 +487,7 @@ module Apipie
       end
 
       def description
-        "Must be an Array of nested elements"
+        "#{I18n.t('apipie.must_be_an_array_of')} #{I18n.t('apipie.nested_elements')}"
       end
 
       def params_ordered

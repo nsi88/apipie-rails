@@ -1,5 +1,13 @@
 en:
     apipie:
+        value: Value
+        must_be: Must be
+        must_be_one_of: Must be one of
+        must_match_regexp: Must match regular expression
+        must_be_an_array_of: Must be an array of
+        nested_elements: nested elements
+        or: or
+        any_type: any type
         resources: Resources
         resource: Resource
         description: Description

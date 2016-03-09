@@ -1,5 +1,13 @@
 ru:
     apipie:
+        value: Значение
+        must_be: Должно быть
+        must_be_one_of: Должно быть одним из
+        must_match_regexp: Должно совпадать с регулярным выражением
+        must_be_an_array_of: Должно быть массивом, состоящим из
+        nested_elements: вложенных элементов
+        or: или
+        any_type: любых типов значений
         resources: Ресурсы
         resource: Ресурс
         description: Описание
@@ -16,7 +24,7 @@ ru:
         optional: необязательно
         nil_allowed: nil разрешен
         param_name: Имя параметра
-        params: Параметры запросы
+        params: Параметры запроса
         field_name: Имя поля
         fields: Поля ответа
         examples: Пример
